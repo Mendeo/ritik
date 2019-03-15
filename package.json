@@ -1,0 +1,13 @@
+{
+  "name": "ritik",
+  "version": "0.0.0",
+  "description": "ritik",
+  "main": "app.js",
+  "author": {
+    "name": ""
+  },
+  "dependencies": {
+    "ethereumjs-abi": "^0.6.6",
+    "solc": "^0.5.6"
+  }
+}
