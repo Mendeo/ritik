@@ -1,27 +1,51 @@
 'use strict';
 
-const abi = require('ethereumjs-abi');
+const eabi = require('ethereumjs-abi');
 const solc = require('solc');
 const cmd = require('minimist')(process.argv.slice(2));
 const fs = require('fs');
+const path = require('path');
+
+//const files = ['Saver.sol']; //cmd._;
+//var contract = undefined; //cmd.c;
+//const types = 'uint256'; //cmd.t;
+//const values = '10'; //cmd.v;
+//const output = undefined; //cmd.o || '.';
 
 const files = cmd._;
-const contract = cmd.c;
+var contract = cmd.c;
 const types = cmd.t;
 const values = cmd.v;
-const output = cmd.o;
+const output = cmd.o || '.';
 
-console.log(files);
-console.log(cmd);
+console.log(values);
+//console.log(cmd);
 
-if (files === undefined || contract === undefined)
+let err = 'You have to specify solidity file names and contract name';
+if (!files) abort(err);
+for (let i = 0; i < files.length; i++)
 {
-    abort('Вы должны указать имя файла для компиляции и имя контракта.');
+    if (files[i].substr(files[0].length - 4, files[0].length - 1) !== '.sol')
+    {
+        abort(err);
+        break;
+    }
+}
+if (!contract)
+{
+    if (files.length === 1)
+    {
+        contract = files[0].substr(0, files[0].length - 4);
+    }
+    else
+    {
+        abort(err);
+    }
 }
 
 var sources = {};
 
-for (var i = 0; i < files.length; i++)
+for (let i = 0; i < files.length; i++)
 {
     try
     {
@@ -39,6 +63,11 @@ const params =
     sources: sources,
     settings:
     {
+        optimizer:
+        {
+            enabled: false,
+            "runs": 500
+        },
         outputSelection:
         {
             "*":
@@ -54,11 +83,11 @@ if (!compiled)
 {
     abort('No output from compiler');
 }
-else if (output['errors'])
+else if (compiled['errors'])
 {
-    for (var error in output['errors'])
+    for (var error in compiled['errors'])
     {
-        var message = output['errors'][error];
+        var message = compiled['errors'][error];
         if (message.severity === 'warning')
         {
             console.log(message.formattedMessage);
@@ -70,10 +99,43 @@ else if (output['errors'])
     }
 }
 
+var compileData = compiled.contracts[contract + '.sol'][contract];
+if (!compileData) abort('Contract name is not as file name');
+
+const byteCode = compileData.evm.bytecode.object.toString();
+const abi = JSON.stringify(compileData.abi);
+
+if (types && values)
+{
+    let t = types.split("~");
+    let v = values.split("~");
+    if (t.length === v.length)
+    {
+        let aux = eabi.rawEncode(t, v);
+        if (aux) byteCode += aux.toString();
+    }
+}
+
+writeFile(contract + '.bin', byteCode);
+writeFile(contract + '.abi', abi);
+
+
 function abort(msg)
 {
     console.error(msg || 'Error occured');
     process.exit(1);
+}
+
+function writeFile(file, content)
+{
+    file = path.join(output, file);
+    fs.writeFile(file, content, function (err)
+    {
+        if (err)
+        {
+            console.error('Failed to write ' + file + ': ' + err);
+        }
+    });
 }
 
 //console.log('Hello world');
