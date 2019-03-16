@@ -9,16 +9,16 @@ const path = require('path');
 //const files = ['Saver.sol']; //cmd._;
 //var contract = undefined; //cmd.c;
 //const types = 'uint256'; //cmd.t;
-//const values = '10'; //cmd.v;
-//const output = undefined; //cmd.o || '.';
+//const values = '1000000000000000000'; //cmd.v;
+//const output = '.'; //cmd.o || '.';
 
-const files = cmd._;
+var files = cmd._;
 var contract = cmd.c;
-const types = cmd.t;
-const values = cmd.v;
-const output = cmd.o || '.';
+var types = cmd.t;
+var values = cmd.v;
+var output = cmd.o || '.';
 
-console.log(values);
+//console.log(values);
 //console.log(cmd);
 
 let err = 'You have to specify solidity file names and contract name';
@@ -102,23 +102,22 @@ else if (compiled['errors'])
 var compileData = compiled.contracts[contract + '.sol'][contract];
 if (!compileData) abort('Contract name is not as file name');
 
-const byteCode = compileData.evm.bytecode.object.toString();
-const abi = JSON.stringify(compileData.abi);
+var byteCode = compileData.evm.bytecode.object.toString();
+var abi = JSON.stringify(compileData.abi);
 
 if (types && values)
 {
-    let t = types.split("~");
-    let v = values.split("~");
+    let t = (types + '').split("~");
+    let v = (values + '').split("~");
     if (t.length === v.length)
     {
-        let aux = eabi.rawEncode(t, v);
-        if (aux) byteCode += aux.toString();
+        let aux = eabi.rawEncode(t, v).toString('hex');
+        if (aux) byteCode += aux;
     }
 }
 
 writeFile(contract + '.bin', byteCode);
 writeFile(contract + '.abi', abi);
-
 
 function abort(msg)
 {
