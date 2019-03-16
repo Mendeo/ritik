@@ -114,6 +114,10 @@ if (types && values)
     let v = (values + '').split("~");
     if (t.length === v.length)
     {
+        for (let i = 0; i < v.length; i++)
+        {
+            v[i] = v[i].replace("_", " ");
+        }
         let aux = eabi.rawEncode(t, v).toString('hex');
         if (aux) byteCode += aux;
     }
