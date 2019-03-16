@@ -1,10 +1,10 @@
 {
   "name": "ritik",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "ritik",
   "main": "app.js",
   "author": {
-    "name": ""
+    "name": "Mendeo"
   },
   "dependencies": {
     "ethereumjs-abi": "^0.6.6",
