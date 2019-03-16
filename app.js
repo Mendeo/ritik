@@ -6,22 +6,25 @@ const cmd = require('minimist')(process.argv.slice(2));
 const fs = require('fs');
 const path = require('path');
 
-//const files = ['Saver.sol']; //cmd._;
-//var contract = undefined; //cmd.c;
-//const types = 'uint256'; //cmd.t;
-//const values = '1000000000000000000'; //cmd.v;
-//const output = '.'; //cmd.o || '.';
+//var files = ['Saver.sol']; 
+//var contract = undefined; 
+//var types = 'uint256'; 
+//var values = '1000000000000000000'; 
+//var output = '.';
+//var runs = Number("200");
 
 var files = cmd._;
 var contract = cmd.c;
 var types = cmd.t;
 var values = cmd.v;
 var output = cmd.o || '.';
+var runs = Number(cmd.r);
 
 //console.log(values);
 //console.log(cmd);
 
 let err = 'You have to specify solidity file names and contract name';
+if (runs && isNaN(runs)) abort("Error in runs number");
 if (!files) abort(err);
 for (let i = 0; i < files.length; i++)
 {
@@ -56,7 +59,6 @@ for (let i = 0; i < files.length; i++)
         abort('Error reading ' + files[i] + ': ' + e);
     }
 }
-
 const params =
 {
     language: "Solidity",
@@ -65,8 +67,8 @@ const params =
     {
         optimizer:
         {
-            enabled: false,
-            "runs": 500
+            enabled: (runs ? true : false),
+            "runs": (runs ? runs : 200)
         },
         outputSelection:
         {
@@ -97,6 +99,7 @@ else if (compiled['errors'])
             console.error(message.formattedMessage);
         }
     }
+    process.exit(1);
 }
 
 var compileData = compiled.contracts[contract + '.sol'][contract];
@@ -136,5 +139,3 @@ function writeFile(file, content)
         }
     });
 }
-
-//console.log('Hello world');
