@@ -6,9 +6,9 @@ const cmd = require('minimist')(process.argv.slice(2));
 const fs = require('fs');
 const path = require('path');
 
-//var file = 'Vote.sol';
-//var cparams = ['uint256 = 1000000000000000000', 'address = 0xf9b46A64D1A0CA972DCb249Ce22a40d07BB854Ae', 'string = hello world!']; 
-//var contract = "Owned"; 
+//var file = '..\\Q.sol';
+//var cparams = ['uint256=1000000000000000000', 'address=0xf9b46A64D1A0CA972DCb249Ce22a40d07BB854Ae']; 
+//var contract = undefined; 
 //var output = '.';
 //var runs = Number("200");
 
@@ -24,13 +24,17 @@ var runs = Number(cmd.r);
 let err = 'You have to specify solidity file name and contract name';
 if (runs && isNaN(runs)) abort("Error in runs number");
 if (!file) abort(err);
-if (file.substr(file.length - 4, file.length - 1) !== '.sol') abort(err);
-if (!contract) contract = file.substr(0, file.length - 4);
+if (!contract)
+{
+    contract = path.basename(file);
+    let ext = path.extname(file);
+    contract = contract.substr(0, contract.length - ext.length);
+}
 
 var sources = {};
 try
 {
-    sources[file] = { content: fs.readFileSync(file).toString() };
+    sources[contract] = { content: fs.readFileSync(file).toString() };
 }
 catch (e)
 {
@@ -80,7 +84,7 @@ else if (compiled['errors'])
     process.exit(1);
 }
 
-var compileData = compiled.contracts[file][contract];
+var compileData = compiled.contracts[contract][contract];
 if (!compileData) abort('No such contract');
 
 var byteCode = compileData.evm.bytecode.object.toString();
@@ -95,8 +99,8 @@ if (cparams)
     {
         let aux = cparams[i].split('=');
         if (aux.length !== 2) abort(err);
-        t[i] = aux[0].trim();
-        v[i] = aux[1].trim();
+        t[i] = aux[0];
+        v[i] = aux[1];
         if (t[i] === 'string') v[i] = v[i].replace("_", " ");  
     }
     console.log('types = ' + t);
