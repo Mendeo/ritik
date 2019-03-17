@@ -6,59 +6,37 @@ const cmd = require('minimist')(process.argv.slice(2));
 const fs = require('fs');
 const path = require('path');
 
-//var files = ['Saver.sol']; 
-//var contract = undefined; 
-//var types = 'uint256'; 
-//var values = '1000000000000000000'; 
+//var file = 'Vote.sol';
+//var cparams = ['uint256 = 1000000000000000000', 'address = 0xf9b46A64D1A0CA972DCb249Ce22a40d07BB854Ae', 'string = hello world!']; 
+//var contract = "Owned"; 
 //var output = '.';
 //var runs = Number("200");
 
-var files = cmd._;
+var file = cmd.f;
+var cparams = cmd._;
 var contract = cmd.c;
-var types = cmd.t;
-var values = cmd.v;
 var output = cmd.o || '.';
 var runs = Number(cmd.r);
 
-//console.log(values);
+//console.log(cparams);
 //console.log(cmd);
 
-let err = 'You have to specify solidity file names and contract name';
+let err = 'You have to specify solidity file name and contract name';
 if (runs && isNaN(runs)) abort("Error in runs number");
-if (!files) abort(err);
-for (let i = 0; i < files.length; i++)
-{
-    if (files[i].substr(files[0].length - 4, files[0].length - 1) !== '.sol')
-    {
-        abort(err);
-        break;
-    }
-}
-if (!contract)
-{
-    if (files.length === 1)
-    {
-        contract = files[0].substr(0, files[0].length - 4);
-    }
-    else
-    {
-        abort(err);
-    }
-}
+if (!file) abort(err);
+if (file.substr(file.length - 4, file.length - 1) !== '.sol') abort(err);
+if (!contract) contract = file.substr(0, file.length - 4);
 
 var sources = {};
-
-for (let i = 0; i < files.length; i++)
+try
 {
-    try
-    {
-        sources[files[i]] = { content: fs.readFileSync(files[i]).toString() };
-    }
-    catch (e)
-    {
-        abort('Error reading ' + files[i] + ': ' + e);
-    }
+    sources[file] = { content: fs.readFileSync(file).toString() };
 }
+catch (e)
+{
+    abort('Error reading ' + file + ': ' + e.toString());
+}
+
 const params =
 {
     language: "Solidity",
@@ -67,8 +45,8 @@ const params =
     {
         optimizer:
         {
-            enabled: (runs ? true : false),
-            "runs": (runs ? runs : 200)
+            enabled: runs ? true : false,
+            "runs": runs ? runs : 200
         },
         outputSelection:
         {
@@ -87,9 +65,9 @@ if (!compiled)
 }
 else if (compiled['errors'])
 {
-    for (var error in compiled['errors'])
+    for (let error in compiled['errors'])
     {
-        var message = compiled['errors'][error];
+        let message = compiled['errors'][error];
         if (message.severity === 'warning')
         {
             console.log(message.formattedMessage);
@@ -102,24 +80,43 @@ else if (compiled['errors'])
     process.exit(1);
 }
 
-var compileData = compiled.contracts[contract + '.sol'][contract];
-if (!compileData) abort('Contract name is not as file name');
+var compileData = compiled.contracts[file][contract];
+if (!compileData) abort('No such contract');
 
 var byteCode = compileData.evm.bytecode.object.toString();
 var abi = JSON.stringify(compileData.abi);
 
-if (types && values)
+if (cparams)
 {
-    let t = (types + '').split("~");
-    let v = (values + '').split("~");
-    if (t.length === v.length)
+    let t = new Array(cparams.length);
+    let v = new Array(cparams.length);
+    let err = 'Error in constructor parameters';
+    for (let i = 0; i < cparams.length; i++)
     {
-        for (let i = 0; i < v.length; i++)
-        {
-            v[i] = v[i].replace("_", " ");
-        }
-        let aux = eabi.rawEncode(t, v).toString('hex');
-        if (aux) byteCode += aux;
+        let aux = cparams[i].split('=');
+        if (aux.length !== 2) abort(err);
+        t[i] = aux[0].trim();
+        v[i] = aux[1].trim();
+        if (t[i] === 'string') v[i] = v[i].replace("_", " ");  
+    }
+    console.log('types = ' + t);
+    console.log('values = ' + v);
+    let aux;
+    try
+    {
+        aux = eabi.rawEncode(t, v).toString('hex');
+    }
+    catch (e)
+    {
+        abort(e.toString());
+    }     
+    if (aux)
+    {
+        byteCode += aux;
+    }
+    else
+    {
+        abort(err);
     }
 }
 
