@@ -151,6 +151,7 @@ function abort(msg, exitCode)
 
 function writeFile(file, content)
 {
+    if (!fs.existsSync(output)) fs.mkdirSync(output);
     file = path.join(output, file);
     fs.writeFile(file, content, function (err)
     {
