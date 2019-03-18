@@ -113,10 +113,11 @@ if (cparams)
     catch (e)
     {
         abort(e.toString());
-    }     
+    }
     if (aux)
     {
         byteCode += aux;
+        writeFile("Constructor.bin", aux);
     }
     else
     {
