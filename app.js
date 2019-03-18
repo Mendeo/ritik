@@ -1,10 +1,19 @@
 'use strict';
 
-const eabi = require('ethereumjs-abi');
-const solc = require('solc');
-const cmd = require('minimist')(process.argv.slice(2));
-const fs = require('fs');
-const path = require('path');
+var eabi, solc, cmd, fs, path;
+
+try
+{
+    eabi = require('ethereumjs-abi');
+    solc = require('solc');
+    cmd = require('minimist')(process.argv.slice(2));
+    fs = require('fs');
+    path = require('path');
+}
+catch (e)
+{
+    abort('You have to make "npm i" before using this tool');
+}
 
 //var file = '..\\Q.sol';
 //var cparams = ['uint256=1000000000000000000', 'address=0xf9b46A64D1A0CA972DCb249Ce22a40d07BB854Ae']; 
