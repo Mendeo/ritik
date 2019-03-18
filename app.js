@@ -12,7 +12,7 @@ try
 }
 catch (e)
 {
-    abort('You have to make "npm i" before using this tool');
+    abort('You have to run "npm i" before using this tool');
 }
 
 //var file = '..\\Q.sol';
