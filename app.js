@@ -105,7 +105,7 @@ if (!compileData) abort('No such contract');
 var byteCode = compileData.evm.bytecode.object.toString();
 var abi = JSON.stringify(compileData.abi);
 
-if (cparams)
+if (cparams.length > 0)
 {
     let t = new Array(cparams.length);
     let v = new Array(cparams.length);
