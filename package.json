@@ -7,9 +7,9 @@
     "name": "Mendeo"
   },
   "dependencies": {
-    "ethereumjs-abi": "^0.6.6",
+    "ethereumjs-abi": "^0.6.7",
     "minimist": "^1.2.0",
     "path": "^0.12.7",
-    "solc": "^0.5.9"
+    "solc": "^0.5.10"
   }
 }
