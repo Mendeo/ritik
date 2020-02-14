@@ -1,6 +1,6 @@
 'use strict';
 
-var eabi, solc, cmd, fs, path;
+let eabi, solc, cmd, fs, path;
 
 try
 {
@@ -21,11 +21,11 @@ catch (e)
 //var output = '.';
 //var runs = Number("200");
 
-var file = cmd.f;
-var cparams = cmd._;
-var contract = cmd.c;
-var output = cmd.o || '.';
-var runs = Number(cmd.r);
+const file = cmd.f;
+const cparams = cmd._;
+let contract = cmd.c;
+const output = cmd.o || '.';
+const runs = Number(cmd.r);
 
 if (cmd.help)
 {
@@ -46,7 +46,7 @@ if (!contract)
     contract = contract.substr(0, contract.length - ext.length);
 }
 
-var sources = {};
+let sources = {};
 try
 {
     sources[contract] = { content: fs.readFileSync(file).toString() };
@@ -77,7 +77,7 @@ const params =
     }
 };
 
-const compiled = JSON.parse(solc.compileStandardWrapper(JSON.stringify(params)));
+const compiled = JSON.parse(solc.compile(JSON.stringify(params)));
 if (!compiled)
 {
     abort('No output from compiler');
@@ -99,11 +99,11 @@ else if (compiled['errors'])
     process.exit(1);
 }
 
-var compileData = compiled.contracts[contract][contract];
+let compileData = compiled.contracts[contract][contract];
 if (!compileData) abort('No such contract');
 
-var byteCode = compileData.evm.bytecode.object.toString();
-var abi = JSON.stringify(compileData.abi);
+let byteCode = compileData.evm.bytecode.object.toString();
+let abi = JSON.stringify(compileData.abi);
 
 if (cparams.length > 0)
 {
