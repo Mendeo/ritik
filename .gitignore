@@ -13,6 +13,8 @@
 *.sln
 *.njsproj
 package-lock.json
+*.swp
+*.*~
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

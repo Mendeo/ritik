@@ -102,7 +102,7 @@ else if (compiled['errors'])
 let compileData = compiled.contracts[contract][contract];
 if (!compileData) abort('No such contract');
 
-let byteCode = compileData.evm.bytecode.object.toString();
+let bin = JSON.stringify(compileData.evm.bytecode);
 let abi = JSON.stringify(compileData.abi);
 
 if (cparams.length > 0)
@@ -131,7 +131,7 @@ if (cparams.length > 0)
     }
     if (aux)
     {
-        byteCode += aux;
+//        byteCode += aux;
         writeFile("Constructor.bin", aux);
     }
     else
@@ -140,7 +140,7 @@ if (cparams.length > 0)
     }
 }
 
-writeFile(contract + '.bin', byteCode);
+writeFile(contract + '.bin', bin);
 writeFile(contract + '.abi', abi);
 
 function abort(msg, exitCode)
